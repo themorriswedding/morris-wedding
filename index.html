@@ -4,65 +4,185 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Donovan & Tina — Wedding</title>
-  <meta name="description" content="Donovan & Tina's wedding details, RSVP, hotel blocks and more." />
-  <!-- Tailwind Play CDN (no build step) -->
+  <meta name="description" content="Donovan & Tina's wedding details, RSVP, travel, and more." />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Outfit', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji'; }
-    .glass { backdrop-filter: blur(8px); background: rgba(255,255,255,0.85); }
-    /* Animated hero background (Zakopane) */
-    .hero-wrap { position: relative; overflow: hidden; }
-    .hero-bg { position: absolute; inset: 0; background-position: center; background-size: cover;
-      transform-origin: center; animation: kenburns 28s ease-in-out infinite alternate; filter: brightness(0.7); }
-    @keyframes kenburns { 0%{transform:scale(1) translate3d(0,0,0);} 100%{transform:scale(1.12) translate3d(0,-2%,0);} }
-    .tab-active { border-color: rgb(244 63 94); color: rgb(190 18 60); background: rgb(255 241 242); }
+    :root {
+      --rose-50: #fff1f2;
+      --rose-100: #ffe4e6;
+      --rose-600: #e11d48;
+      --ink: #0f172a;
+    }
+    body { font-family: 'Outfit', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, 'Noto Sans'; }
+    .glass { backdrop-filter: blur(10px); background: rgba(255,255,255,0.8); }
+    .nav-active { color: var(--rose-600); border-color: var(--rose-600); background: var(--rose-50); }
+    /* HERO slideshow */
+    .hero { position: relative; height: 72vh; min-height: 520px; overflow: hidden; }
+    .hero-slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 1.2s ease-in-out, transform 10s ease-in-out; transform: scale(1.05); }
+    .hero-slide.active { opacity: 1; transform: scale(1); }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.25) 40%, rgba(0,0,0,.45)); }
+    /* Section background helpers */
+    .section-bg { background-size: cover; background-position: center; }
+    .parallax { background-attachment: fixed; }
+    /* Gallery */
+    .gallery img { aspect-ratio: 4/3; object-fit: cover; }
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,.85); display: none; align-items: center; justify-content: center; z-index: 50; }
+    .modal.open { display: flex; }
+    .modal img { max-width: 92vw; max-height: 90vh; border-radius: 1rem; box-shadow: 0 10px 40px rgba(0,0,0,.4); }
   </style>
 </head>
-<body class="bg-rose-50 text-gray-900">
-  <header class="hero-wrap h-[60vh] md:h-[70vh]">
-    <div id="heroBg" class="hero-bg"></div>
-    <div class="absolute inset-0 bg-black/30"></div>
-    <div class="relative h-full max-w-6xl mx-auto px-6 flex items-end pb-8">
-      <div class="glass rounded-2xl shadow-xl p-6 md:p-8 w-full">
-        <p id="eventTag" class="text-sm text-rose-700 font-semibold"></p>
-        <h1 id="heroTitle" class="mt-1 text-3xl md:text-5xl font-bold tracking-tight text-gray-900"></h1>
-        <p class="mt-2 text-gray-700" id="heroSubtitle">We’re so excited to celebrate with you. Details will be posted here as they’re confirmed.</p>
+<body class="text-slate-900 bg-white">
+  <!-- HERO -->
+  <header class="hero" id="hero">
+    <div id="heroSlides"></div>
+    <div class="hero-overlay"></div>
+    <div class="relative z-10 h-full max-w-6xl mx-auto px-6 flex items-end pb-10">
+      <div class="glass rounded-2xl shadow-xl p-6 md:p-10 w-full text-center">
+        <p id="eventTag" class="text-sm text-rose-200 md:text-rose-100"></p>
+        <h1 id="heroTitle" class="mt-2 text-white text-4xl md:text-6xl font-bold tracking-tight drop-shadow">Donovan & Tina</h1>
+        <p id="heroSubtitle" class="mt-3 text-white/90">Details coming soon — check back for updates!</p>
+        <div class="mt-6 flex flex-wrap justify-center gap-3">
+          <a id="rsvpBtn" href="#" target="_blank" class="hidden inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-rose-700 font-semibold shadow hover:bg-rose-50 transition">RSVP</a>
+          <a id="icsBtn" download="Donovan-Tina-Wedding.ics" href="#" class="hidden inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-rose-700 font-semibold shadow hover:bg-rose-50 transition">Add to Calendar</a>
+        </div>
       </div>
     </div>
   </header>
-  <nav class="sticky top-0 z-10 bg-white/90 backdrop-blur border-b border-rose-100">
+
+  <!-- NAV -->
+  <nav class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b">
     <div class="max-w-6xl mx-auto px-6">
       <ul class="flex flex-wrap gap-2 py-3 text-sm">
-        <li><button data-tab="home" class="tab-btn px-3 py-2 rounded-lg border">Home</button></li>
-        <li><button data-tab="schedule" class="tab-btn px-3 py-2 rounded-lg border">Schedule</button></li>
-        <li><button data-tab="travel" class="tab-btn px-3 py-2 rounded-lg border">Travel & Hotels</button></li>
-        <li><button data-tab="rsvp" class="tab-btn px-3 py-2 rounded-lg border">RSVP</button></li>
-        <li><button data-tab="registry" class="tab-btn px-3 py-2 rounded-lg border">Registry</button></li>
-        <li><button data-tab="faq" class="tab-btn px-3 py-2 rounded-lg border">FAQ</button></li>
-        <li><button data-tab="contact" class="tab-btn px-3 py-2 rounded-lg border">Contact</button></li>
+        <li><button class="tab px-3 py-2 rounded-lg border" data-tab="home">Home</button></li>
+        <li><button class="tab px-3 py-2 rounded-lg border" data-tab="story">Our Story</button></li>
+        <li><button class="tab px-3 py-2 rounded-lg border" data-tab="schedule">Schedule</button></li>
+        <li><button class="tab px-3 py-2 rounded-lg border" data-tab="travel">Travel & Hotels</button></li>
+        <li><button class="tab px-3 py-2 rounded-lg border" data-tab="rsvp">RSVP</button></li>
+        <li><button class="tab px-3 py-2 rounded-lg border" data-tab="registry">Registry</button></li>
+        <li><button class="tab px-3 py-2 rounded-lg border" data-tab="faq">FAQ</button></li>
+        <li><button class="tab px-3 py-2 rounded-lg border" data-tab="contact">Contact</button></li>
       </ul>
     </div>
   </nav>
+
+  <!-- MAIN -->
   <main class="max-w-6xl mx-auto px-6">
+    <!-- HOME -->
     <section id="page-home" class="py-10">
-      <div class="glass rounded-2xl shadow-lg p-6 md:p-8">
-        <div class="text-center mb-6">
-          <h2 class="text-2xl md:text-3xl font-semibold tracking-tight">Countdown to the Big Day</h2>
-          <p id="rsvpDeadline" class="mt-1 text-sm text-gray-600"></p>
+      <div class="grid md:grid-cols-2 gap-6 md:gap-8">
+        <div class="glass rounded-2xl shadow-lg p-6 md:p-8">
+          <div class="text-center mb-6">
+            <h2 class="text-2xl md:text-3xl font-semibold tracking-tight">Event Details</h2>
+          </div>
+          <div class="space-y-3 text-sm">
+            <div><span class="font-semibold">When:</span> <span id="eventWhen">TBD</span></div>
+            <div><span class="font-semibold">Where:</span> <span id="eventWhere">TBD</span></div>
+            <div><span class="font-semibold">Dress Code:</span> <span id="dressCode">Formal / Black Tie Optional</span></div>
+            <div class="pt-2"><a id="mapLink" class="hidden inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-rose-600 text-white text-sm font-medium shadow hover:bg-rose-700 transition" target="_blank" rel="noreferrer">Open in Maps</a></div>
+          </div>
         </div>
-        <div class="grid grid-cols-4 gap-3 md:gap-6 text-center">
-          <div class="rounded-xl bg-rose-100 p-4"><div id="cdDays" class="text-3xl md:text-5xl font-bold">—</div><div class="text-xs uppercase tracking-wide text-rose-700 mt-1">Days</div></div>
-          <div class="rounded-xl bg-rose-100 p-4"><div id="cdHours" class="text-3xl md:text-5xl font-bold">—</div><div class="text-xs uppercase tracking-wide text-rose-700 mt-1">Hours</div></div>
-          <div class="rounded-xl bg-rose-100 p-4"><div id="cdMinutes" class="text-3xl md:text-5xl font-bold">—</div><div class="text-xs uppercase tracking-wide text-rose-700 mt-1">Minutes</div></div>
-          <div class="rounded-xl bg-rose-100 p-4"><div id="cdSeconds" class="text-3xl md:text-5xl font-bold">—</div><div class="text-xs uppercase tracking-wide text-rose-700 mt-1">Seconds</div></div>
+        <div class="glass rounded-2xl shadow-lg p-6 md:p-8">
+          <div class="text-center mb-6">
+            <h2 class="text-2xl md:text-3xl font-semibold tracking-tight">Countdown</h2>
+          </div>
+          <div class="grid grid-cols-4 gap-3 md:gap-6 text-center">
+            <div class="rounded-xl bg-rose-100 p-4"><div id="cdDays" class="text-3xl md:text-5xl font-bold">—</div><div class="text-xs uppercase tracking-wide text-rose-700 mt-1">Days</div></div>
+            <div class="rounded-xl bg-rose-100 p-4"><div id="cdHours" class="text-3xl md:text-5xl font-bold">—</div><div class="text-xs uppercase tracking-wide text-rose-700 mt-1">Hours</div></div>
+            <div class="rounded-xl bg-rose-100 p-4"><div id="cdMinutes" class="text-3xl md:text-5xl font-bold">—</div><div class="text-xs uppercase tracking-wide text-rose-700 mt-1">Minutes</div></div>
+            <div class="rounded-xl bg-rose-100 p-4"><div id="cdSeconds" class="text-3xl md:text-5xl font-bold">—</div><div class="text-xs uppercase tracking-wide text-rose-700 mt-1">Seconds</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass rounded-2xl shadow-lg p-6 md:p-8 mt-8">
+        <h3 class="text-xl font-semibold mb-4 text-center">Featured Photos</h3>
+        <div id="featuredRow" class="grid grid-cols-2 md:grid-cols-4 gap-3 gallery"></div>
+      </div>
+    </section>
+
+    <!-- STORY (optional long text with bg) -->
+    <section id="page-story" class="py-10 hidden">
+      <div class="rounded-2xl overflow-hidden">
+        <div id="storyBg" class="section-bg parallax min-h-[220px]"></div>
+        <div class="glass p-6 md:p-10 -mt-10 md:-mt-16 mx-3 md:mx-6 rounded-2xl shadow-lg relative">
+          <h2 class="text-2xl md:text-3xl font-semibold tracking-tight text-center mb-4">Our Story</h2>
+          <div id="storyText" class="prose max-w-none text-slate-700 mx-auto">
+            <p>We’ll add our story here — how we met, favorite adventures, and what we’re excited about for this next chapter.</p>
+          </div>
         </div>
       </div>
     </section>
+
+    <!-- SCHEDULE -->
+    <section id="page-schedule" class="py-10 hidden">
+      <div class="glass rounded-2xl shadow-lg p-6 md:p-8">
+        <h2 class="text-2xl md:text-3xl font-semibold tracking-tight text-center mb-6">Wedding Day Schedule</h2>
+        <ul id="scheduleFull" class="divide-y"></ul>
+        <p class="text-sm text-gray-500 mt-3">Times may shift slightly closer to the event.</p>
+      </div>
+    </section>
+
+    <!-- TRAVEL -->
+    <section id="page-travel" class="py-10 hidden">
+      <div class="rounded-2xl overflow-hidden">
+        <div id="travelBg" class="section-bg parallax min-h-[200px]"></div>
+        <div class="glass p-6 md:p-10 -mt-10 md:-mt-16 mx-3 md:mx-6 rounded-2xl shadow-lg relative">
+          <h2 class="text-2xl md:text-3xl font-semibold tracking-tight text-center mb-6">Travel & Hotels</h2>
+          <div id="hotelsGrid" class="grid md:grid-cols-2 gap-6"></div>
+          <p class="text-sm text-gray-500 mt-3">Hotel block links will appear here once confirmed.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- RSVP -->
+    <section id="page-rsvp" class="py-10 hidden">
+      <div class="glass rounded-2xl shadow-lg p-6 md:p-8 text-center">
+        <h2 class="text-2xl md:text-3xl font-semibold tracking-tight mb-2">RSVP</h2>
+        <p class="text-gray-600 mb-4">RSVP link will appear here when available.</p>
+        <a id="rsvpPageBtn" href="#" class="px-5 py-2.5 rounded-full bg-rose-600 text-white font-semibold shadow hover:bg-rose-700 transition hidden" target="_blank">Open RSVP Form</a>
+      </div>
+    </section>
+
+    <!-- REGISTRY -->
+    <section id="page-registry" class="py-10 hidden">
+      <div class="glass rounded-2xl shadow-lg p-6 md:p-8 text-center">
+        <h2 class="text-2xl md:text-3xl font-semibold tracking-tight mb-4">Registry</h2>
+        <div id="registryBtns" class="flex flex-wrap gap-3 justify-center"></div>
+        <p class="text-sm text-gray-500 mt-3">We’re grateful for your love and support — registry links coming soon.</p>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="page-faq" class="py-10 hidden">
+      <div class="glass rounded-2xl shadow-lg p-6 md:p-8">
+        <h2 class="text-2xl md:text-3xl font-semibold tracking-tight text-center mb-6">FAQ</h2>
+        <div class="grid md:grid-cols-2 gap-6 md:gap-8 text-sm" id="faqGrid"></div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="page-contact" class="py-10 hidden">
+      <div class="glass rounded-2xl shadow-lg p-6 md:p-8 text-center">
+        <h2 class="text-2xl md:text-3xl font-semibold tracking-tight mb-2">Contact Us</h2>
+        <div class="flex flex-col md:flex-row items-center justify-center gap-3 text-sm">
+          <a id="contactEmail" class="px-4 py-2 rounded-full bg-white border shadow hover:bg-rose-50"></a>
+          <span class="text-gray-400 hidden md:inline">•</span>
+          <a id="contactPhone" class="px-4 py-2 rounded-full bg-white border shadow hover:bg-rose-50"></a>
+        </div>
+        <p id="footerMadeWith" class="text-xs text-gray-500 mt-3"></p>
+      </div>
+    </section>
   </main>
+
+  <!-- FOOTER -->
   <footer class="py-8 text-center text-xs text-gray-500" id="footerCopy"></footer>
+
+  <!-- GALLERY MODAL -->
+  <div id="modal" class="modal"><img id="modalImg" src="" alt=""/></div>
+
   <script src="script.js"></script>
 </body>
 </html>
